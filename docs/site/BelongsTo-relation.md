@@ -43,6 +43,28 @@ related routes, you need to perform the following steps:
 This section describes how to define a `belongsTo` relation at the model level
 using the `@belongsTo` decorator to define the constraining foreign key.
 
+The definition of the `belongsTo` relation is inferred by using the `@belongsTo`
+decorator. The decorator takes in a function resolving the target model class
+constructor and designates the relation type. It also calls `property()` to
+ensure that the decorated property is correctly defined. Usage of belongsTo
+relation is similar to the legacy
+[datasource juggler](https://github.com/strongloop/loopback-datasource-juggler).
+
+The `@belongsTo` decorator takes three parameters:
+
+- `target model class` (required)
+- `relation definition` (optional) - has three attributes, keyFrom, keyTo, name
+  - `keyFrom` is a property name of the foreign key on the "source" model (for
+    example, `customerId` on `Order` model). `keyFrom` is always set to the
+    `decorated property name`.
+  - `keyTo` is a property name on the "target" model, typically the primary key
+    of the "target" model. `keyTo` attribute defaults to the value `id`.
+  - `name` is the target model name. name attribute defaults to
+    `{decorated-property-name}` after stripping the trailing `Id` suffix.
+- `property definition` (optional) - creates a property decorator implicitly.
+  The name attribute in the definition can be used to customize datasource
+  column name.
+
 {% include code-caption.html content="/src/models/order.model.ts" %}
 
 ```ts
@@ -75,18 +97,45 @@ export interface OrderRelations {
 export type OrderWithRelations = Order & OrderRelations;
 ```
 
-The definition of the `belongsTo` relation is inferred by using the `@belongsTo`
-decorator. The decorator takes in a function resolving the target model class
-constructor and designates the relation type. It also calls `property()` to
-ensure that the decorated property is correctly defined.
+The standard naming convention for the foreign key property in the source model
+is `target model name` + `Id` (for example, Order.customerId).
 
-A usage of the decorator with a custom primary key of the target model for the
-above example is as follows:
+- If the foreign key property name in the source model has to be customized,
+  then the `name` attribute in the relation definition (the target model name)
+  has to be stated explicitly. Also, the corresponding `hasMany` relation in the
+  `target` model has to be modified with the correct `keyTo` value.
+- In the following example, the foreign key property name is customized as
+  `cust_Id` instead of `customerId`. so the relation definition in the second
+  argument is explicitly passed to the `belongsTo` decorator.
 
 ```ts
 class Order extends Entity {
   // constructor, properties, etc.
-  @belongsTo(() => Customer, {keyTo: 'pk'})
+  @belongsTo(() => Customer, {keyFrom: 'cust_Id', name: 'customer'})
+  cust_Id: number;
+}
+```
+
+In the following example, the db column name of the foreign key is customized by
+passing the property definition in the third argument to the `belongsTo`
+decorator.
+
+```ts
+class Order extends Entity {
+  // constructor, properties, etc.
+  @belongsTo(() => Customer, {keyFrom: 'customerId'}, {name: 'customer_id'})
+  customerId: number;
+}
+```
+
+The standard naming convention for the primary key in the target model is `id`.
+The `keyTo` attribute in the relation definition can be used when the target
+model's primary key name is customized.
+
+```ts
+class Order extends Entity {
+  // constructor, properties, etc.
+  @belongsTo(() => Customer, { keyFrom: 'customerId', keyTo: 'customized_target_property' }),
   customerId: number;
 }
 
