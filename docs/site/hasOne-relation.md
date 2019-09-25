@@ -145,6 +145,42 @@ class Supplier extends Entity {
 }
 ```
 
+### Relation Metadata
+
+`keyFrom`, `keyTo` and `name` fields in the `hasOne` relation matadata allow us
+to customize and/or specify our id/foreign key names:
+
+- `keyFrom`: the primary key of the source model. The default value is the id
+  property in the source model, which is the `id` property of `Supplier` in our
+  example above.
+- `keyTo`: the foreign key of the target model. The default value is the source
+  model name appended with `id` in camel case, which is the `supplierId`
+  property of `Account` in our example above.
+- `name`: the name of the relation, which is the `account` property of
+  `Supplier` in our example.
+
+We can specify the `keyTo` field via `@hasOne` decorator if we have customized
+the foreign key name as `supplier_id` instead of `supplierId`:
+
+```ts
+@model()
+export class Account extends Entity {
+  // constructor, properties, etc.
+  @belongsTo(() => Supplier)
+  supplier_id: number; // customized foreign key name
+}
+```
+
+specify the `keyTo` field:
+
+```ts
+class Supplier extends Entity {
+  // constructor, properties, etc.
+  @hasOne(() => Account, {keyTo: 'supplier_id'})
+  account?: Account;
+}
+```
+
 ## Setting up your database for hasOne relation - MySQL
 
 At the moment, LoopBack does not provide the means to enforce referential

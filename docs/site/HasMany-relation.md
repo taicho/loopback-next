@@ -85,7 +85,9 @@ inferred properly as an array of the target model instances.
 
 The decorated property name is used as the relation name and stored as part of
 the source model definition's relation metadata. The property type metadata is
-also preserved as an array of type `Order` as part of the decoration.
+also preserved as an array of type `Order` as part of the decoration. (Check
+[Relation Metadata](https://loopback.io/doc/en/lb4/HasMany-relation.html#relation-metadata)
+section below for more details)
 
 A usage of the decorator with a custom foreign key name for the above example is
 as follows:
@@ -176,6 +178,42 @@ export interface OrderRelations {
 }
 
 export type OrderWithRelations = Order & OrderRelations;
+```
+
+### Relation Metadata
+
+`keyFrom`, `keyTo` and `name` fields in the `hasMany` relation matadata allow us
+to customize and specify our id/foreign key names:
+
+- `keyFrom`: the primary key of the source model. The default value is the id
+  property in the source model, which is `id` property of `Customer` in our
+  example.
+- `keyTo`: the foreign key of the target model. The default value is the source
+  model name appended with `id` in camel case, which is the `customerId`
+  property of `Order` in our example.
+- `name`: the name of the relation, which is the `orders` property of `Customer`
+  in our example.
+
+We can specify the `keyTo` field via `@hasMany` decorator if we have customized
+the foreign key name as `my_customer_id` instead of `customerId`:
+
+```ts
+@model()
+export class Order extends Entity {
+  // constructor, properties, etc.
+  @belongsTo(() => Customer)
+  my_customer_id: number; // customized foreign key name
+}
+```
+
+specify the `keyTo` field:
+
+```ts
+class Customer extends Entity {
+  // constructor, properties, etc.
+  @hasMany(() => Order, {keyTo: 'my_custom_id'})
+  orders: Order[];
+}
 ```
 
 ## Configuring a hasMany relation
