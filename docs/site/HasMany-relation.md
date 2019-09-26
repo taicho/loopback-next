@@ -198,21 +198,34 @@ We can specify the `keyTo` field via `@hasMany` decorator if we have customized
 the foreign key name as `my_customer_id` instead of `customerId`:
 
 ```ts
-@model()
-export class Order extends Entity {
-  // constructor, properties, etc.
-  @belongsTo(() => Customer)
-  my_customer_id: number; // customized foreign key name
-}
-```
-
-specify the `keyTo` field:
-
-```ts
 class Customer extends Entity {
   // constructor, properties, etc.
   @hasMany(() => Order, {keyTo: 'my_custom_id'})
   orders: Order[];
+}
+```
+
+```ts
+@model()
+export class Order extends Entity {
+  // constructor, properties, etc.
+  @property({
+    type: 'number',
+  })
+  my_customer_id: number; // customized foreign key name
+}
+```
+
+Notice that if you decorate the foreign key of the target model with
+`@belongsTo`, you also need to specify the relation name in its metadata. See
+[BelongsTo](BelongsTo-relation.md) for more details.
+
+```ts
+@model()
+export class Order extends Entity {
+  // constructor, properties, etc.
+  @belongsTo(() => Customer, {name: 'customer'}) // specify the belongsTo relation name
+  my_customer_id: number; // customized foreign key name
 }
 ```
 

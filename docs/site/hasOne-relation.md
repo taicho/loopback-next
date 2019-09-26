@@ -163,21 +163,34 @@ We can specify the `keyTo` field via `@hasOne` decorator if we have customized
 the foreign key name as `supplier_id` instead of `supplierId`:
 
 ```ts
-@model()
-export class Account extends Entity {
-  // constructor, properties, etc.
-  @belongsTo(() => Supplier)
-  supplier_id: number; // customized foreign key name
-}
-```
-
-specify the `keyTo` field:
-
-```ts
 class Supplier extends Entity {
   // constructor, properties, etc.
   @hasOne(() => Account, {keyTo: 'supplier_id'})
   account?: Account;
+}
+```
+
+```ts
+@model()
+export class Account extends Entity {
+  // constructor, properties, etc.
+  @property({
+    type: 'number',
+  })
+  supplier_id: number; // customized foreign key name
+}
+```
+
+Notice that if you decorate the foreign key of the target model with
+`@belongsTo`, you also need to specify the relation name in its metadata. See
+[BelongsTo](BelongsTo-relation.md) for more details.
+
+```ts
+@model()
+export class Account extends Entity {
+  // constructor, properties, etc.
+  @belongsTo(() => Supplier, {name: 'account'}) // specify the belongsTo relation name
+  supplier_id: number; // customized foreign key name
 }
 ```
 
