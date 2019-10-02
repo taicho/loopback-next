@@ -382,6 +382,7 @@ module.exports = class RelationGenerator extends ArtifactGenerator {
 
   async promptRegisterInclusionResolver() {
     // should we let users decide the relation is traversable?
+    // or promt a warning msg: 'Notice not all models are traversable'
     return this.prompt([
       {
         type: 'confirm',

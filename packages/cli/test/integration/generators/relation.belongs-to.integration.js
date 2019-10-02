@@ -436,11 +436,13 @@ describe('lb4 relation', function() {
         relationType: 'belongsTo',
         sourceModel: 'OrderClass',
         destinationModel: 'CustomerClass',
+        isInclusionResolverRegistered: false,
       },
       {
         relationType: 'belongsTo',
         sourceModel: 'OrderClassType',
         destinationModel: 'CustomerClassType',
+        isInclusionResolverRegistered: false,
       },
     ];
 
@@ -507,19 +509,19 @@ describe('lb4 relation', function() {
       });
 
       it('repository has updated constructor', async () => {
-        const singleWordClassConstractor = [
+        const singleWordClassConstructor = [
           /public readonly customer: BelongsToAccessor<Customer, typeof Order\.prototype\.id>;\n/,
           /constructor\(@inject\('datasources\.db'\) dataSource: DbDataSource, @repository\.getter\('CustomerRepository'\) protected customerRepositoryGetter: Getter<CustomerRepository>,\) \{\n/,
-          /super\(Order, dataSource\);\n {4}this\.customer = this\.createBelongsToAccessorFor\('customer', customerRepositoryGetter,\);\n {2}\}\n/,
+          /super\(Order, dataSource\);\n {4}this\.customer = this\.createBelongsToAccessorFor\('customer', customerRepositoryGetter,\);\n/,
         ];
 
-        const multiWordClassConstractor = [
+        const multiWordClassConstructor = [
           /public readonly customerClass: BelongsToAccessor<CustomerClass, typeof OrderClass\.prototype\.orderNumber>;\n/,
           /constructor\(@inject\('datasources\.myDB'\) dataSource: MyDBDataSource, @repository\.getter\('CustomerClassRepository'\) protected customerClassRepositoryGetter: Getter<CustomerClassRepository>,\) \{\n/,
           /super\(OrderClass, dataSource\);\n {4}this\.customerClass = this\.createBelongsToAccessorFor\('customerClassCustNumber', customerClassRepositoryGetter,\);\n {2}\}\n/,
         ];
 
-        const typeClassConstractor = [
+        const typeClassConstructor = [
           /public readonly customerClassType: BelongsToAccessor<CustomerClassType, typeof OrderClassType\.prototype\.orderString>;\n/,
           /constructor\(@inject\('datasources\.myDB'\) dataSource: MyDBDataSource, @repository\.getter\('CustomerClassTypeRepository'\) protected customerClassTypeRepositoryGetter: Getter<CustomerClassTypeRepository>,\) \{\n/,
           /super\(OrderClassType, dataSource\);\n {4}this\.customerClassType = this\.createBelongsToAccessorFor\('customerClassTypeCustNumber', customerClassTypeRepositoryGetter,\);\n {2}\}\n/,
@@ -532,9 +534,32 @@ describe('lb4 relation', function() {
         );
 
         const updateConstructorRegEx = [
-          singleWordClassConstractor,
-          multiWordClassConstractor,
-          typeClassConstractor,
+          singleWordClassConstructor,
+          multiWordClassConstructor,
+          typeClassConstructor,
+        ];
+        updateConstructorRegEx[i].forEach(regex => {
+          assert.fileContent(sourceRepositoryFile, regex);
+        });
+      });
+
+      it('registers the inclusion resolver for the relation', async () => {
+        const singleWordClassConstructor = [
+          /this\.registerInclusionResolver\('customer', this\.customer\.inclusionResolver\);\n {2}\}\n/,
+        ];
+        const multiWordClassConstructor = [];
+        const typeClassConstructor = [];
+
+        const sourceRepositoryFile = path.join(
+          SANDBOX_PATH,
+          REPOSITORY_APP_PATH,
+          repositoryFileName[i],
+        );
+
+        const updateConstructorRegEx = [
+          singleWordClassConstructor,
+          multiWordClassConstructor,
+          typeClassConstructor,
         ];
         updateConstructorRegEx[i].forEach(regex => {
           assert.fileContent(sourceRepositoryFile, regex);

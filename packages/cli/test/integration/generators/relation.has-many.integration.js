@@ -711,11 +711,13 @@ describe('lb4 relation HasMany', function() {
         relationType: 'hasMany',
         sourceModel: 'CustomerClass',
         destinationModel: 'OrderClass',
+        isInclusionResolverRegistered: false,
       },
       {
         relationType: 'hasMany',
         sourceModel: 'CustomerClassType',
         destinationModel: 'OrderClassType',
+        isInclusionResolverRegistered: false,
       },
     ];
 
@@ -778,20 +780,19 @@ describe('lb4 relation HasMany', function() {
           assert.fileContent(sourceRepositoryFile, regex);
         });
       });
-
       it('repository has updated constructor', async () => {
-        const singleWordClassConstractor = [
+        const singleWordClassConstructor = [
           /public readonly orders: HasManyRepositoryFactory<Order, typeof Customer\.prototype\.id>;\n/,
           /constructor\(\@inject\('datasources\.db'\) dataSource: DbDataSource, \@repository\.getter\('OrderRepository'\) protected orderRepositoryGetter: Getter<OrderRepository>,\) \{\n/,
-          /super\(Customer, dataSource\);\n {4}this.orders = this.createHasManyRepositoryFactoryFor\('orders', orderRepositoryGetter,\);\n {2}\}\n/,
+          /super\(Customer, dataSource\);\n {4}this.orders = this.createHasManyRepositoryFactoryFor\('orders', orderRepositoryGetter,\);\n/,
         ];
 
-        const multiWordClassConstractor = [
+        const multiWordClassConstructor = [
           /public readonly orderClasses: HasManyRepositoryFactory<OrderClass, typeof CustomerClass\.prototype\.custNumber>;\n/,
           /constructor\(\@inject\('datasources\.myDB'\) dataSource: MyDBDataSource, \@repository\.getter\('OrderClassRepository'\) protected orderClassRepositoryGetter: Getter<OrderClassRepository>,\) \{\n/,
           /super\(CustomerClass, dataSource\);\n {4}this\.orderClasses = this\.createHasManyRepositoryFactoryFor\('orderClasses', orderClassRepositoryGetter,\);\n {2}\}\n/,
         ];
-        const typeClassConstractor = [
+        const typeClassConstructor = [
           /public readonly orderClassTypes: HasManyRepositoryFactory<OrderClassType, typeof CustomerClassType\.prototype\.custNumber>;\n/,
           /constructor\(@inject\('datasources\.myDB'\) dataSource: MyDBDataSource, @repository\.getter\('OrderClassTypeRepository'\) protected orderClassTypeRepositoryGetter: Getter<OrderClassTypeRepository>,\) \{\n/,
           /super\(CustomerClassType, dataSource\);\n {4}this\.orderClassTypes = this\.createHasManyRepositoryFactoryFor\('orderClassTypes', orderClassTypeRepositoryGetter,\);\n {2}\}/,
@@ -804,9 +805,32 @@ describe('lb4 relation HasMany', function() {
         );
 
         const updateConstructorRegEx = [
-          singleWordClassConstractor,
-          multiWordClassConstractor,
-          typeClassConstractor,
+          singleWordClassConstructor,
+          multiWordClassConstructor,
+          typeClassConstructor,
+        ];
+        updateConstructorRegEx[i].forEach(regex => {
+          assert.fileContent(sourceRepositoryFile, regex);
+        });
+      });
+
+      it('registers the inclusion resolver for the relation', async () => {
+        const singleWordClassConstructor = [
+          /this\.registerInclusionResolver\('orders', this\.orders\.inclusionResolver\);\n {2}\}\n/,
+        ];
+        const multiWordClassConstructor = [];
+        const typeClassConstructor = [];
+
+        const sourceRepositoryFile = path.join(
+          SANDBOX_PATH,
+          REPOSITORY_APP_PATH,
+          repositoryFileName[i],
+        );
+
+        const updateConstructorRegEx = [
+          singleWordClassConstructor,
+          multiWordClassConstructor,
+          typeClassConstructor,
         ];
         updateConstructorRegEx[i].forEach(regex => {
           assert.fileContent(sourceRepositoryFile, regex);
