@@ -73,6 +73,12 @@ module.exports = class RelationGenerator extends ArtifactGenerator {
       required: false,
       description: 'Relation name',
     });
+
+    this.option('isInclusionResolverRegistered', {
+      type: Boolean,
+      required: false,
+      description: 'Register inclusion resolver for the relation',
+    });
     this.artifactInfo = {
       type: 'relation',
       rootDir: utils.sourceRootDir,
@@ -369,6 +375,24 @@ module.exports = class RelationGenerator extends ArtifactGenerator {
       },
     ]).then(props => {
       debug(`props after relation name prompt: ${inspect(props)}`);
+      Object.assign(this.artifactInfo, props);
+      return props;
+    });
+  }
+
+  async promptRegisterInclusionResolver() {
+    // should we let users decide the relation is traversable?
+    return this.prompt([
+      {
+        type: 'confirm',
+        name: 'isInclusionResolverRegistered',
+        message: `Do you want to use inclusion for querying data over relation ${chalk.yellow(
+          this.artifactInfo.relationName,
+        )}?`,
+        default: true,
+      },
+    ]).then(props => {
+      debug(`props after inclusion resolver promps: ${inspect(props)}`);
       Object.assign(this.artifactInfo, props);
       return props;
     });

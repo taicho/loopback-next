@@ -154,4 +154,18 @@ module.exports = class BelongsToRelationGenerator extends BaseRelationGenerator 
       'Getter,);';
     classConstructor.insertStatements(1, statement);
   }
+
+  _registerInclusionResolverForRelation(classConstructor, options) {
+    const relationPropertyName = this._getRepositoryRelationPropertyName();
+    if (options.isInclusionResolverRegistered) {
+      const statement =
+        "this.registerInclusionResolver('" +
+        relationPropertyName +
+        "', " +
+        'this.' +
+        relationPropertyName +
+        '.inclusionResolver);';
+      classConstructor.insertStatements(2, statement);
+    }
+  }
 };
