@@ -60,6 +60,18 @@ lb4 relation --sourceModel=<sourceModel>
 
 - `<relationName>` - Name of the relation that will be created.
 
+After setting up the definition for the relation, you need to confirm if you
+want to register the inclusion resolver for this relation:
+
+```ts
+? Do you want to use inclusion for querying data over relation items? (Y/n)
+```
+
+Check the site [Relations](https://loopback.io/doc/en/lb4/Relations.html) and
+the
+[Querying Related Models](https://loopback.io/doc/en/lb4/HasMany-relation.html#querying-related-models)
+section in each relation for more use cases.
+
 ### Interactive Prompts
 
 The tool will prompt you for:
