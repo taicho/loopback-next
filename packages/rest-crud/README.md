@@ -41,6 +41,19 @@ npm install --save @loopback/rest-crud
    app.controller(ProductController);
    ```
 
+## defineCrudRepositoryClass
+
+A helper method `defineCrudRepositoryClass` is exported by this module, which
+can be used for creating named repositories (based on the Model).
+
+Usage example:
+
+```ts
+const db = new juggler.DataSource({connector: 'memory'});
+const ProductRepository = defineCrudRepositoryClass(Product);
+const repo = new ProductRepository(db);
+```
+
 ## Contributions
 
 - [Guidelines](https://github.com/strongloop/loopback-next/blob/master/docs/CONTRIBUTING.md)
